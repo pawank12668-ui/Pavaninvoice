@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Simple Mobile Invoice App</title>
+
   <style>
     :root{
       --accent:#0366d6;
@@ -15,321 +16,319 @@
     body{margin:0;background:var(--bg);padding:14px;color:#111}
     .app{max-width:920px;margin:8px auto}
     header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
-    .brand{display:flex;flex-direction:column}
-    .brand h1{margin:0;font-size:18px}
+    .brand h1{margin:0;font-size:20px}
     .brand small{color:var(--muted)}
     .card{background:var(--card);padding:12px;border-radius:10px;box-shadow:0 6px 18px rgba(12,20,30,0.06);margin-bottom:12px}
     .row{display:flex;gap:8px;flex-wrap:wrap}
     .col{flex:1;min-width:150px}
     label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
-    input,select,button{padding:8px;border-radius:8px;border:1px solid #e3e7ee;width:100%;font-size:14px}
+    input{padding:8px;border-radius:8px;border:1px solid #e3e7ee;width:100%;font-size:14px}
+    button{cursor:pointer}
     table{width:100%;border-collapse:collapse;margin-top:8px}
     th,td{padding:8px;border-bottom:1px solid #eee;text-align:left}
     th{background:#fafafa;font-weight:600;font-size:13px}
-    .actions{display:flex;gap:8px;flex-wrap:wrap}
-    .btn{background:var(--accent);color:#fff;border:none;cursor:pointer;padding:10px 12px;border-radius:8px}
+    .btn{background:var(--accent);color:#fff;border:none;padding:10px 12px;border-radius:8px;font-size:14px}
+    .btn.small{padding:6px 10px;font-size:13px}
     .btn.secondary{background:#2d2d2d}
-    .small{font-size:13px;padding:6px 10px}
     .right{text-align:right}
-    @media (max-width:640px){
-      th:nth-child(1), td:nth-child(1){width:38%}
-      th:nth-child(4), td:nth-child(4){width:18%}
-    }
-    .invoice-preview{background:#fff;padding:16px;border-radius:8px}
-    .totals{max-width:360px;margin-left:auto}
-    .muted{color:var(--muted);font-size:13px}
-    .remove-btn{background:transparent;border:none;color:#d33;cursor:pointer;font-weight:600}
+    .remove-btn{background:transparent;border:none;color:#d33;font-size:18px}
   </style>
 </head>
+
 <body>
-  <div class="app">
-    <header>
-      <div class="brand">
-        <h1 contenteditable id="businessName">komal kirana store</h1>
-        <small class="muted">Mobile Billing • Offline • Print / PDF</small>
-      </div>
-      <div class="muted right">
-        <div>Invoice # <strong id="invoiceNo"></strong></div>
-        <div id="date"></div>
-      </div>
-    </header>
+<div class="app">
 
-    <div class="card">
-      <div class="row">
-        <div class="col">
-          <label>Customer Name</label>
-          <input id="custName" placeholder="Customer ka naam (optional)">
-        </div>
-        <div class="col">
-          <label>Phone</label>
-          <input id="custPhone" placeholder="Phone number (optional)">
-        </div>
-        <div class="col">
-          <label>GST (%) — agar nahi to 0</label>
-          <input id="gstRate" value="0" type="number" min="0" max="100">
-        </div>
-        <div class="col">
-          <label>Discount (₹)</label>
-          <input id="discount" value="0" type="number" min="0">
-        </div>
-      </div>
+  <header>
+    <div class="brand">
+      <h1 contenteditable id="businessName">My Business</h1>
+      <small class="muted">Mobile Billing • Offline • Print / PDF</small>
     </div>
 
-    <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <strong>Items</strong>
-        <div class="actions">
-          <button class="btn small" id="addRow">+ Add Item</button>
-          <button class="btn small secondary" id="clearAll">Clear All</button>
-        </div>
-      </div>
-
-      <table id="itemsTable" aria-label="items">
-        <thead>
-          <tr>
-            <th>Item / Description</th>
-            <th>Qty</th>
-            <th>Rate (₹)</th>
-            <th>Total (₹)</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="itemsBody">
-          <!-- rows injected -->
-        </tbody>
-      </table>
-
-      <div class="totals card" style="margin-top:12px">
-        <div class="row">
-          <div class="col muted">Subtotal</div>
-          <div class="col right" id="subtotal">₹0.00</div>
-        </div>
-        <div class="row">
-          <div class="col muted">GST (<span id="gstPercentText">0</span>%)</div>
-          <div class="col right" id="gstAmount">₹0.00</div>
-        </div>
-        <div class="row">
-          <div class="col muted">Discount</div>
-          <div class="col right" id="discountAmount">₹0.00</div>
-        </div>
-        <hr />
-        <div class="row">
-          <div class="col"><strong>Grand Total</strong></div>
-          <div class="col right"><strong id="grandTotal">₹0.00</strong></div>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
-        <button class="btn" id="printBtn">Print Invoice</button>
-        <button class="btn" id="pdfBtn">Download PDF</button>
-        <button class="btn secondary" id="saveTemplate">Save Template</button>
-      </div>
+    <div class="muted right">
+      <div>Invoice # <strong id="invoiceNo"></strong></div>
+      <div id="date"></div>
     </div>
+  </header>
 
-    <div style="margin-top:10px;font-size:13px;color:var(--muted)">
-      Tip: Business name par tap kar ke edit karo. Items add karne ke baad Download PDF ya Print karo.
+  <div class="card">
+    <div class="row">
+      <div class="col">
+        <label>Customer Name</label>
+        <input id="custName" placeholder="Customer ka naam">
+      </div>
+      <div class="col">
+        <label>Phone</label>
+        <input id="custPhone" placeholder="Phone number">
+      </div>
+      <div class="col">
+        <label>GST (%)</label>
+        <input id="gstRate" type="number" value="0">
+      </div>
+      <div class="col">
+        <label>Discount (₹)</label>
+        <input id="discount" type="number" value="0">
+      </div>
     </div>
   </div>
 
-  <!-- Libraries for PDF capture -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <strong>Items</strong>
+      <div style="display:flex;gap:6px">
+        <button class="btn small" id="addRow">+ Add Item</button>
+        <button class="btn small secondary" id="clearAll">Clear All</button>
+      </div>
+    </div>
 
-  <script>
-    // Utility: format currency carefully (digit by digit)
-    function fmt(n){
-      // ensure number, round to 2 decimals
-      n = Number(n) || 0;
-      // round to two decimals (digit by digit)
-      n = Math.round((n + Number.EPSILON) * 100) / 100;
-      return n.toFixed(2);
-    }
+    <table id="itemsTable">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Qty</th>
+          <th>Rate (₹)</th>
+          <th>Total (₹)</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="itemsBody"></tbody>
+    </table>
 
-    // Invoice no + date
-    const invoiceEl = document.getElementById('invoiceNo');
-    const dateEl = document.getElementById('date');
-    function genInvoiceNo(){
-      const now = new Date();
-      // Format: INV-YYYYMMDD-HHMMSS
-      const pad = (v, d=2)=>String(v).padStart(d,'0');
-      const id = 'INV-' + now.getFullYear() + pad(now.getMonth()+1) + pad(now.getDate()) + '-' + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds());
-      invoiceEl.textContent = id;
-      dateEl.textContent = now.toLocaleString();
-    }
-    genInvoiceNo();
+    <div class="card" style="margin-top:12px">
+      <div class="row">
+        <div class="col muted">Subtotal</div>
+        <div class="col right" id="subtotal">₹0.00</div>
+      </div>
+      <div class="row">
+        <div class="col muted">GST (<span id="gstPercentText">0</span>%)</div>
+        <div class="col right" id="gstAmount">₹0.00</div>
+      </div>
+      <div class="row">
+        <div class="col muted">Discount</div>
+        <div class="col right" id="discountAmount">₹0.00</div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col"><strong>Grand Total</strong></div>
+        <div class="col right"><strong id="grandTotal">₹0.00</strong></div>
+      </div>
+    </div>
 
-    // Items table handling
-    const itemsBody = document.getElementById('itemsBody');
-    const addRowBtn = document.getElementById('addRow');
-    const gstInput = document.getElementById('gstRate');
-    const discountInput = document.getElementById('discount');
-    const subtotalEl = document.getElementById('subtotal');
-    const gstAmountEl = document.getElementById('gstAmount');
-    const discountAmountEl = document.getElementById('discountAmount');
-    const grandEl = document.getElementById('grandTotal');
-    const gstPercentText = document.getElementById('gstPercentText');
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+      <button class="btn" id="printBtn">Print Invoice</button>
+      <button class="btn" id="pdfBtn">Download PDF</button>
+    </div>
+  </div>
 
-    function newRow(item='', qty=1, rate=0){
-      const tr = document.createElement('tr');
+                    </div><!-- JS START -->
+<script>
 
-      tr.innerHTML = `
-        <td><input class="desc" placeholder="Item name / description" value="${item}"></td>
-        <td><input class="qty" type="number" min="0" value="${qty}"></td>
-        <td><input class="rate" type="number" min="0" step="0.01" value="${rate}"></td>
-        <td class="lineTotal">₹0.00</td>
-        <td><button class="remove-btn" title="Remove">✕</button></td>
-      `;
-      // events
-      tr.querySelector('.qty').addEventListener('input', calcAll);
-      tr.querySelector('.rate').addEventListener('input', calcAll);
-      tr.querySelector('.remove-btn').addEventListener('click', ()=>{ tr.remove(); calcAll(); });
-      itemsBody.appendChild(tr);
-      calcAll();
-      return tr;
-    }
+// Currency formatting
+function fmt(n){
+  n = Number(n) || 0;
+  n = Math.round((n + Number.EPSILON) * 100) / 100;
+  return n.toFixed(2);
+}
 
-    addRowBtn.addEventListener('click', ()=> newRow());
-    document.getElementById('clearAll').addEventListener('click', ()=>{
-      if(confirm('Saare items clear karna hai?')){ itemsBody.innerHTML=''; calcAll(); }
-    });
+// Invoice number + date
+const invoiceEl = document.getElementById('invoiceNo');
+const dateEl = document.getElementById('date');
 
-    function calcAll(){
-      const rows = Array.from(itemsBody.querySelectorAll('tr'));
-      let subtotal = 0;
-      rows.forEach(r=>{
-        const q = Number(r.querySelector('.qty').value) || 0;
-        const rate = Number(r.querySelector('.rate').value) || 0;
-        // multiply digit-by-digit (JS double precision careful rounding)
-        const line = Math.round((q * rate + Number.EPSILON) * 100) / 100;
-        subtotal += line;
-        r.querySelector('.lineTotal').textContent = '₹' + fmt(line);
-      });
-      subtotal = Math.round((subtotal + Number.EPSILON) * 100) / 100;
-      const gstPerc = Number(gstInput.value) || 0;
-      const gstAmount = Math.round((subtotal * gstPerc / 100 + Number.EPSILON) * 100) / 100;
-      const discount = Math.round((Number(discountInput.value) || 0) * 100) / 100;
-      const grand = Math.round((subtotal + gstAmount - discount + Number.EPSILON) * 100) / 100;
+function genInvoiceNo(){
+  const d = new Date();
+  invoiceEl.textContent =
+    "INV-" +
+    d.getFullYear() +
+    String(d.getMonth()+1).padStart(2,'0') +
+    String(d.getDate()).padStart(2,'0') +
+    "-" +
+    String(d.getHours()).padStart(2,'0') +
+    String(d.getMinutes()).padStart(2,'0') +
+    String(d.getSeconds()).padStart(2,'0');
 
-      subtotalEl.textContent = '₹' + fmt(subtotal);
-      gstAmountEl.textContent = '₹' + fmt(gstAmount);
-      discountAmountEl.textContent = '₹' + fmt(discount);
-      grandEl.textContent = '₹' + fmt(grand);
-      gstPercentText.textContent = fmt(gstPerc);
-    }
+  dateEl.textContent = d.toLocaleString();
+}
+genInvoiceNo();
 
-    gstInput.addEventListener('input', calcAll);
-    discountInput.addEventListener('input', calcAll);
+// Elements
+const itemsBody = document.getElementById('itemsBody');
+const addRowBtn = document.getElementById('addRow');
+const clearAllBtn = document.getElementById('clearAll');
+const gstInput = document.getElementById('gstRate');
+const discountInput = document.getElementById('discount');
+const subtotalEl = document.getElementById('subtotal');
+const gstAmountEl = document.getElementById('gstAmount');
+const discountAmountEl = document.getElementById('discountAmount');
+const grandEl = document.getElementById('grandTotal');
+const gstPercentText = document.getElementById('gstPercentText');
 
-    // PDF / Print
-    document.getElementById('printBtn').addEventListener('click', ()=>{
-      // Create printable window with invoice content
-      openPrintWindow();
-    });
+// Add new row
+function newRow(item="", qty=1, rate=0){
+  const tr = document.createElement("tr");
 
-    async function openPrintWindow(){
-      // Build a printable DOM
-      const business = document.getElementById('businessName').innerText || 'Business';
-      const cust = document.getElementById('custName').value || '';
-      const phone = document.getElementById('custPhone').value || '';
-      const invoice = invoiceEl.textContent;
-      const date = dateEl.textContent;
+  tr.innerHTML = `
+    <td><input class="desc" placeholder="Item name"></td>
+    <td><input class="qty" type="number" min="0" value="1"></td>
+    <td><input class="rate" type="number" min="0" value="0"></td>
+    <td class="lineTotal">₹0.00</td>
+    <td><button class="remove-btn">✕</button></td>
+  `;
 
-      // Clone items into markup
-      let rowsHtml = '';
-      Array.from(itemsBody.querySelectorAll('tr')).forEach(r=>{
-        const desc = r.querySelector('.desc').value || '';
-        const q = r.querySelector('.qty').value || 0;
-        const rate = fmt(r.querySelector('.rate').value || 0);
-        const lt = r.querySelector('.lineTotal').textContent || '₹0.00';
-        rowsHtml += `<tr><td>${desc}</td><td style="text-align:right">${q}</td><td style="text-align:right">₹${rate}</td><td style="text-align:right">${lt}</td></tr>`;
-      });
+  // remove row
+  tr.querySelector(".remove-btn").onclick = () => {
+    tr.remove();
+    calcAll();
+  };
 
-      const html = `
-      <html>
-      <head>
-        <meta name="viewport" content="width=device-width,initial-scale=1">
-        <style>
-          body{font-family:Arial,Helvetica,sans-serif;padding:18px;color:#222}
-          .h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-          table{width:100%;border-collapse:collapse;margin-top:12px}
-          td,th{padding:8px;border-bottom:1px solid #eee}
-          th{background:#f9f9f9}
-          .right{text-align:right}
-        </style>
-      </head>
-      <body>
-        <div class="h"><div><h2 style="margin:0">${business}</h2><div style="color:#666;font-size:13px">${cust} ${phone? ' • ' + phone : ''}</div></div><div><strong>Invoice</strong><div>${invoice}</div><div style="font-size:13px;color:#666">${date}</div></div></div>
-        <table>
-          <thead><tr><th>Item</th><th class="right">Qty</th><th class="right">Rate</th><th class="right">Total</th></tr></thead>
-          <tbody>${rowsHtml}</tbody>
-        </table>
+  tr.querySelector(".qty").oninput = calcAll;
+  tr.querySelector(".rate").oninput = calcAll;
 
-        <div style="max-width:320px;margin-left:auto;margin-top:12px">
-          <table style="width:100%">
-            <tr><td>Subtotal</td><td class="right">${subtotalEl.textContent}</td></tr>
-            <tr><td>GST (${gstInput.value}%)</td><td class="right">${gstAmountEl.textContent}</td></tr>
-            <tr><td>Discount</td><td class="right">${discountAmountEl.textContent}</td></tr>
-            <tr><td><strong>Grand Total</strong></td><td class="right"><strong>${grandEl.textContent}</strong></td></tr>
-          </table>
-        </div>
+  itemsBody.appendChild(tr);
+  calcAll();
+}
 
-        <div style="margin-top:18px;font-size:13px;color:#666">Thank you for your business!</div>
-      </body>
-      </html>`;
+addRowBtn.onclick = () => newRow();
 
-      const w = window.open('', '_blank');
-      w.document.write(html);
-      w.document.close();
-      // give browser a moment then open print dialog
-      setTimeout(()=> w.print(), 600);
-    }
+// Clear all
+clearAllBtn.onclick = () => {
+  if(confirm("Saare items clear karna hai?")){
+    itemsBody.innerHTML = "";
+    calcAll();
+  }
+};
 
-    // Download PDF using html2canvas + jsPDF
-    document.getElementById('pdfBtn').addEventListener('click', async ()=>{
-      const business = document.getElementById('businessName').innerText || 'Business';
-      // Create a container div like printable view
-      const wrapper = document.createElement('div');
-      wrapper.style.padding = '18px';
-      wrapper.style.width = '800px';
-      wrapper.style.background = '#fff';
-      wrapper.innerHTML = buildPrintableHTML();
-      document.body.appendChild(wrapper);
+// Total calculation
+function calcAll(){
+  let subtotal = 0;
 
-      // Use html2canvas
-      const canvas = await html2canvas(wrapper, {scale:2});
-      const imgData = canvas.toDataURL('image/png');
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF('p','pt','a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      // calculate image dims
-      const imgProps = {width: canvas.width, height: canvas.height};
-      const ratio = Math.min(pdfWidth / imgProps.width, pdfHeight / imgProps.height);
-      const imgWidth = imgProps.width * ratio;
-      const imgHeight = imgProps.height * ratio;
-      pdf.addImage(imgData, 'PNG', (pdfWidth - imgWidth)/2, 20, imgWidth, imgHeight);
-      const fname = (invoiceEl.textContent || 'invoice') + '.pdf';
-      pdf.save(fname);
+  Array.from(itemsBody.querySelectorAll("tr")).forEach(row => {
+    let q = Number(row.querySelector(".qty").value) || 0;
+    let r = Number(row.querySelector(".rate").value) || 0;
 
-      wrapper.remove();
-    });
+    let line = Math.round((q * r + Number.EPSILON) * 100)/100;
+    subtotal += line;
 
-    function buildPrintableHTML(){
-      const business = document.getElementById('businessName').innerText || 'Business';
-      const cust = document.getElementById('custName').value || '';
-      const phone = document.getElementById('custPhone').value || '';
-      const invoice = invoiceEl.textContent;
-      const date = dateEl.textContent;
-      let rowsHtml = '';
-      Array.from(itemsBody.querySelectorAll('tr')).forEach(r=>{
-        const desc = r.querySelector('.desc').value || '';
-        const q = r.querySelector('.qty').value || 0;
-        const rate = fmt(r.querySelector('.rate').value || 0);
-        const lt = r.querySelector('.lineTotal').textContent || '₹0.00';
-        rowsHtml += `<tr><td style="padding:6px 8px">${desc}</td><td style="padding:6px 8px;text-align:right">${q}</td><td style="padding:6px 8px;text-align:right">₹${rate}</td><td style="padding:6px 8px;text-align:right">${lt}</td></tr>`;
-      });
+    row.querySelector(".lineTotal").textContent = "₹" + fmt(line);
+  });
 
-      return `
-      <div style="font-family:Arial,Helvetica,sans-serif;color:#222">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <div><h2 style="margin:0">${escapeHtml(business)}</h2><div style="color:#666;font-size:13
+  let gstRate = Number(gstInput.value) || 0;
+  let gstAmount = subtotal * gstRate / 100;
+
+  let discount = Number(discountInput.value) || 0;
+
+  let grand = subtotal + gstAmount - discount;
+
+  subtotalEl.textContent = "₹" + fmt(subtotal);
+  gstAmountEl.textContent = "₹" + fmt(gstAmount);
+  discountAmountEl.textContent = "₹" + fmt(discount);
+  grandEl.textContent = "₹" + fmt(grand);
+  gstPercentText.textContent = gstRate;
+}
+
+gstInput.oninput = calcAll;
+discountInput.oninput = calcAll;
+
+</script><!-- PDF + PRINT SYSTEM -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+<script>
+
+// PRINT WINDOW
+document.getElementById("printBtn").onclick = () => openPrintWindow();
+
+function openPrintWindow(){
+  const business = document.getElementById("businessName").innerText;
+  const cust = document.getElementById("custName").value;
+  const phone = document.getElementById("custPhone").value;
+  const invoice = document.getElementById("invoiceNo").textContent;
+  const date = document.getElementById("date").textContent;
+
+  let rows = "";
+  Array.from(itemsBody.querySelectorAll("tr")).forEach(r => {
+    const desc = r.querySelector(".desc").value;
+    const q = r.querySelector(".qty").value;
+    const rate = r.querySelector(".rate").value;
+    const total = r.querySelector(".lineTotal").textContent;
+
+    rows += `
+      <tr>
+        <td>${desc}</td>
+        <td class="right">${q}</td>
+        <td class="right">₹${rate}</td>
+        <td class="right">${total}</td>
+      </tr>`;
+  });
+
+  const html = `
+  <html>
+  <head>
+    <style>
+      body{font-family:Arial;padding:20px}
+      table{width:100%;border-collapse:collapse;margin-top:12px}
+      th,td{padding:8px;border-bottom:1px solid #ddd}
+      th{background:#f2f2f2}
+      .right{text-align:right}
+    </style>
+  </head>
+  <body>
+    <h2>${business}</h2>
+    <p>${cust} ${phone ? "• " + phone : ""}</p>
+    <p><b>Invoice:</b> ${invoice}<br><b>Date:</b> ${date}</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th class="right">Qty</th>
+          <th class="right">Rate</th>
+          <th class="right">Total</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+
+    <h3 style="text-align:right;margin-top:20px">
+      Grand Total: ${document.getElementById("grandTotal").textContent}
+    </h3>
+  </body>
+  </html>
+  `;
+
+  const w = window.open("", "_blank");
+  w.document.write(html);
+  w.document.close();
+  setTimeout(() => w.print(), 500);
+}
+
+// PDF DOWNLOAD
+document.getElementById("pdfBtn").onclick = async () => {
+  const wrapper = document.createElement("div");
+  wrapper.style.padding = "20px";
+  wrapper.style.background = "#fff";
+  wrapper.style.width = "900px";
+
+  wrapper.innerHTML = document.querySelector(".app").innerHTML;
+  document.body.appendChild(wrapper);
+
+  const canvas = await html2canvas(wrapper, {scale:2});
+  const imgData = canvas.toDataURL("image/png");
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF("p","pt","a4");
+  const wPDF = pdf.internal.pageSize.getWidth();
+  const hPDF = pdf.internal.pageSize.getHeight();
+
+  const ratio = Math.min(wPDF / canvas.width, hPDF / canvas.height);
+  const wImg = canvas.width * ratio;
+  const hImg = canvas.height * ratio;
+
+  pdf.addImage(imgData, "PNG", 10, 10, wImg, hImg);
+  pdf.save(document.getElementById("invoiceNo").textContent + ".pdf");
+
+  wrapper.remove();
+};
+
+</script>
+
+</body>
+</html>
